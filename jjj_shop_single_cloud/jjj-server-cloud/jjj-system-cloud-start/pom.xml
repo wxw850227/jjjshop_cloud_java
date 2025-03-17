@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>jjj-server-cloud</artifactId>
+        <groupId>net.jjjshop</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>jjj-system-cloud-start</artifactId>
+    <description>System项目微服务启动</description>
+
+    <dependencies>
+        <!-- jjjshop 微服务基础依赖-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+        <!--SpringData工具包-->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+            <version>${spring-data-commons.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <version>${spring-data-commons.version}</version>
+        </dependency>
+        <!-- jjjshop-system-biz依赖 -->
+        <dependency>
+            <groupId>net.jjjshop</groupId>
+            <artifactId>jjj-system-shop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.jjjshop</groupId>
+            <artifactId>jjj-system-admin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.jjjshop</groupId>
+            <artifactId>jjj-system-front</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.jjjshop</groupId>
+            <artifactId>jjj-system-job</artifactId>
+        </dependency>
+
+        <!-- 引入定时任务依赖 -->
+        <dependency>
+            <groupId>com.xuxueli</groupId>
+            <artifactId>xxl-job-core</artifactId>
+            <version>${xxl-job-core.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>jjj-single-cloud-${project.version}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

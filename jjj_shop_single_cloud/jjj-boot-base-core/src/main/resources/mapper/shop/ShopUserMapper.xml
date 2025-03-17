@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.jjjshop.common.mapper.shop.ShopUserMapper">
+
+    <select id="getSuper" resultType="net.jjjshop.common.entity.shop.ShopUser">
+        SELECT *
+        FROM ${prefix}shop_user
+        WHERE tenant_id = #{tenantId}
+          AND is_delete = 0 AND is_super = 1
+    </select>
+</mapper>

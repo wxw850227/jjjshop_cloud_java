@@ -1,0 +1,14 @@
+jjjshop:
+  route:
+    config:
+      data-type: nacos
+      data-id: jjjsingle-gateway-router
+spring:
+  data:
+    redis:
+      database: 0
+      host: 127.0.0.1
+      port: 6379
+      password: 123456
+knife4j:
+  production: false

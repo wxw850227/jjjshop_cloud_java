@@ -1,0 +1,12 @@
+[{
+  "id": "jjjsingle-system",
+  "order": 0,
+  "predicates": [{
+    "name": "Path",
+    "args": {
+      "_genkey_0": "/api/**"
+    }
+  }],
+  "filters": [],
+  "uri": "lb://jjjsingle-system"
+}]

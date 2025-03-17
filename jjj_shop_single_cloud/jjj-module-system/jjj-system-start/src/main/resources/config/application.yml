@@ -1,0 +1,340 @@
+############################# 访问路径、端口 #############################
+server:
+  port: 8893
+  servlet:
+    context-path: /api
+  undertow:
+    # 平替 tomcat server.tomcat.max-swallow-siz， undertow该值默认为-1
+    #    max-http-post-size: 10MB
+    worker-threads: 16 # 4核CPU标准配置
+  error:
+    include-exception: true
+    include-stacktrace: ALWAYS
+    include-message: ALWAYS
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types: application/javascript,application/json,application/xml,text/html,text/xml,text/plain,text/css,image/*
+############################# 访问路径、端口###############################
+
+################################ spring config start ###############################
+spring:
+  application:
+    name: jjjsingle-system
+  profiles:
+    # 当前项目maven激活环境，例如：dev/test/prod，对应pom.xml中profile设置值
+    active: '@profile.name@'
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  #json 时间戳统一转换
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  freemarker:
+    check-template-location: false
+  jpa:
+    open-in-view: false
+  aop:
+    proxy-target-class: true
+  servlet:
+    # 文件上传配置
+    multipart:
+      # 指定上传文件的临时目录
+      location: /opt/upload/tmp
+      # 单个文件最大值
+      max-file-size: 10MB
+      # 单个请求文件总计最大值
+      max-request-size: 100MB
+  # 设置静态文件路径，js,css等
+  mvc:
+    static-path-pattern: /**
+    #Spring Boot 2.6+后映射匹配的默认策略已从AntPathMatcher更改为PathPatternParser,需要手动指定为ant-path-matcher
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  resource:
+    static-locations: classpath:/static/,classpath:/public/
+
+#Mybatis输出sql日志
+# logback.xml中有详细的日志配置
+logging:
+  config: classpath:config/logback.xml
+  file:
+    name: logs/${spring.application.name}.log
+    path: ./logs
+################################ spring config end #################################
+
+# 开启和暴露端点
+management:
+  endpoint:
+    health:
+      show-details: ALWAYS
+    logfile:
+      enabled: true
+    web:
+      exposure:
+        include: metrics,httpexchanges,httptrace-new
+
+############################## spring-boot-jjj start ##############################
+spring-boot-jjj:
+  # 是否启用ansi控制台输出有颜色的字体
+  enable-ansi: true
+  # 服务器IP地址或域名
+  server-ip: http://127.0.0.1:${server.port}
+  # 当前版本号
+  project-version: '@project.version@'
+  # 是否启用验证码
+  enable-verify-code: false
+  # 实现BaseEnum接口的枚举包
+  enum-packages: net.jjjshop.framework.common.enums
+  # Swagger路径
+  swagger-paths: /v3/api-docs/**,/favicon.ico,/swagger-ui.html,/swagger-ui/**,/docs,/doc.html,/swagger-resources/**,/webjars/**,/csrf,/null/swagger-resources/**
+  # Filter配置
+  filter:
+    request:
+      enable: true
+      url-patterns: /*
+      order: 1
+      async: true
+    xss:
+      enable: true
+      url-patterns: /*
+      order: 2
+      async: true
+
+  # 拦截器配置
+  interceptor:
+    permission:
+      enable: false
+      include-paths: /**
+    resource:
+      enable: false
+      include-paths: ${spring-boot-jjj.resource-access-patterns}
+    upload:
+      enable: false
+      include-paths: /uploads/**
+    download:
+      enable: false
+      include-paths: /download/**
+
+  # AOP配置
+  aop:
+    # Aop日志配置
+    log:
+      # 是否启用
+      enable: true
+      # 是否启用requestId
+      enable-request-id: true
+      # requestId生成规则: UUID/IDWORK
+      request-id-type: IDWORK
+      # NONE：不打印日志
+      # ORDER：请求和响应日志，按照执行顺序分开打印
+      # LINE：方法执行结束时，连续分开打印请求和响应日志
+      # MERGE：方法执行结束时，合并请求和响应日志，同时打印
+      log-print-type: NONE
+      # 请求日志在控制台是否格式化输出，local环境建议开启，服务器环境设置为false
+      request-log-format: true
+      # 响应日志在控制台是否格式化输出，local环境建议开启，服务器环境设置为false
+      response-log-format: true
+      # 排除的路径
+      exclude-paths: /,/csrf
+    # 操作日志配置
+    operation-log:
+      # 是否启用
+      enable: true
+      # 排除的路径
+      exclude-paths:
+    # 登录日志配置
+    login-log:
+      # 是否启用
+      enable: true
+      # 登录地址
+      login-path: /shop/passport/login
+      # 登出地址
+      logout-path: /shop/passport/logout
+
+  # 文件上传下载配置
+  # 上传路径配置
+  upload-path: ./uploads
+  # 资源访问路径
+  resource-access-path: /resource/
+  # 资源访问路径匹配：/resource/**
+  resource-access-patterns: ${spring-boot-jjj.resource-access-path}**
+  # 资源访问全路径前缀：http://127.0.0.1:8888/resource/
+  resource-access-url: ${spring-boot-jjj.server-ip}${server.servlet.context-path}${spring-boot-jjj.resource-access-path}
+  # 静态资源访问目录
+  static-access-url: ${spring-boot-jjj.server-ip}${server.servlet.context-path}/static/
+  # 全局允许上传的类型
+  allow-upload-file-extensions: jpg,png,docx,xlsx,pptx,pdf
+  # 全局允许下载的类型
+  allow-download-file-extensions: jpg,png,docx,xlsx,pptx,pdf
+
+  ########################## Resource start ##########################
+  # 静态资源访问配置
+  resource-handlers: |
+    /static/**=classpath:/static/
+    swagger-ui.html=classpath:/META-INF/resources/
+    /webjars/**=classpath:/META-INF/resources/webjars/
+    doc.html=classpath:/META-INF/resources/
+  ########################## Resource end ############################
+
+  ######################## Spring Shiro start ########################
+  shiro:
+    # 是否启用
+    enable: true
+    # 配置不会被拦截的路径
+    anon:
+      # 排除静态资源
+      - /static/**,/templates/**
+      # 排除Swagger
+      - ${spring-boot-jjj.swagger-paths}
+      # 排除actuator
+      - /actuator/**,/druid/**,/websocket/**
+      - # 排除首页
+      - /,/index.html
+      # front模块
+      - /front/**
+      # admin模块
+      - /admin/passport/login,/admin/index/base
+      # shop模块
+      - /shop/index/base,/shop/passport/login
+      # job模块
+      - /job/**
+    # 多行字符串权限配置
+    filter-chain-definitions: |
+      /resource/**=anon
+      /uploads/**=anon
+      /verificationCode/**=anon
+      /enum=anon
+      /getSysUserInfo=anon
+
+  ######################## Spring Shiro end ##########################
+
+  ############################ JWT start #############################
+  jwt:
+    # token请求头名称
+    token-name: token
+    # jwt密钥
+    secret: 888888
+    # 发行人
+    issuer: ${spring.application.name}
+    # 观众
+    audience: web
+    # 默认过期时间1小时，单位：秒
+    expire-second: 36000
+    # 是否刷新token
+    refresh-token: true
+    # 刷新token的时间间隔，默认10分钟，单位：秒
+    refresh-token-countdown: 600
+    # redis校验jwt token是否存在,可选
+    redis-check: true
+    # true: 同一个账号只能是最后一次登录token有效，false：同一个账号可多次登录
+    single-login: false
+    # 盐值校验，如果不加自定义盐值，则使用secret校验
+    salt-check: true
+  ############################ JWT end ###############################
+
+############################### spring-boot-jjj end ###############################
+
+############################### mybatis-plus start #################################
+mybatis-plus:
+  # 启动时是否检查MyBatis XML文件是否存在
+  check-config-location: true
+  # MyBatis原生配置
+  configuration:
+    # 字段名称下划线转驼峰命名
+    map-underscore-to-camel-case: true
+    # 返回类型为Map,显示null对应的字段
+    call-setters-on-nulls: true
+  global-config:
+    # 关闭MP3.0自带的banner
+    banner: false
+    db-config:
+      # 默认数据库表下划线命名
+      table-underline: true
+      # 全局默认主键类型
+      id-type: auto
+      # 逻辑已删除值(默认为 1)
+      logic-delete-value: 1
+      # 逻辑未删除值(默认为 0)
+      logic-not-delete-value: 0
+      # 表前缀
+      table-prefix: jjjshop_
+  configuration-properties:
+    # 自定义sql中表名带前缀
+    prefix: jjjshop_
+  # mapper xml映射路径
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+################################ mybatis-plus end ##################################
+
+############################### HikariCP 数据源配置 start ################################
+---
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    cachePrepStmts: true
+    prepStmtCacheSize: 300
+    prepStmtCacheSqlLimit: 2048
+    useServerPrepStmts: true
+    useLocalSessionState: true
+    rewriteBatchedStatements: true
+    cacheResultSetMetadata: true
+    cacheServerConfiguration: true
+    elideSetAutoCommits: true
+    maintainTimeStats: false
+    hikari:
+      # 最小连接数
+      minimum-idle: 10
+      # 最大连接数
+      maximum-pool-size: 20
+      # 一个连接idle状态的最大时长（毫秒），超时则被释放（retired），默认:6分钟
+      idle-timeout: 360000
+      # 一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），默认:7分钟
+      max-lifetime: 420000
+      # 等待连接池分配连接的最大时长（毫秒），超过这个时长还没可用的连接则发生SQLException， 默认:30秒
+      connection-timeout: 30000
+############################### HikariCP 数据源配置 end ################################
+
+############################### Redis 公共配置 start ###############################
+---
+spring:
+  data:
+    redis:
+      timeout: 10s
+      lettuce:
+        pool:
+          max-active: 200
+          max-idle: 8
+          max-wait: 10s
+          min-idle: 2
+        shutdown-timeout: 3s
+############################### Redis 公共配置 end ##################################
+
+#################################### Swagger start #################################
+---
+spring-boot-jjj:
+  swagger:
+    base:
+      # 扫描的包，多个包使用逗号隔开
+      package: net.jjjshop
+    contact:
+      email: 279517889@qq.com
+      name: jjjshop
+      url: https://www.jjjshop.net
+    description: 接口文档
+    title: ${spring.application.name} API Documents
+    version: '@project.version@'
+
+#swagger
+knife4j:
+  #开启增强配置
+  enable: true
+  #开启生产环境屏蔽
+  production: false
+  basic:
+    enable: false
+    username: admin
+    password: admin
+
+#################################### Swagger end ###################################
