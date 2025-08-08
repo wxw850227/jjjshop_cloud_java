@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.jjjshop.shop.mapper.statistics.ProductRankingMapper">
+    <select id="getSaleRanking" resultType="net.jjjshop.shop.vo.statistics.ProductSaleRankingVo">
+        SELECT op.product_id, op.product_name, SUM(op.total_num) AS total_num
+        FROM ${prefix}order_product AS op
+                 LEFT JOIN ${prefix}order o
+                           ON o.order_id = op.order_id
+        WHERE o.pay_status = 20
+          AND o.order_status != 20
+        GROUP BY op.product_id, op.product_name
+        HAVING total_num > 0
+        ORDER BY total_num DESC
+        LIMIT 0,10
+    </select>
+
+    <select id="getRefundRanking" resultType="net.jjjshop.shop.vo.statistics.ProductRefundRankingVo">
+        SELECT op.product_name, op.product_id, COUNT(op.product_id) AS refund_count
+        FROM ${prefix}order_refund ore
+                 JOIN ${prefix}order_product op
+                      ON op.order_product_id = ore.order_product_id
+        GROUP BY op.product_id, op.product_name
+        HAVING refund_count > 0
+        ORDER BY refund_count DESC
+        LIMIT 0,10
+    </select>
+
+    <select id="getSaleTimeRanking" resultType="net.jjjshop.common.vo.product.ProductHomeRankingVo">
+        SELECT op.product_name,op.product_id,sum(op.total_pay_price) as total_price,sum(op.total_num) as total_num
+        FROM ${prefix}order_product op
+        JOIN ${prefix}product p
+        ON p.product_id=op.product_id
+        JOIN ${prefix}order o
+        ON o.order_id=op.order_id
+        where o.pay_status = 20 AND o.order_status != 20 and p.is_delete = 0
+        <if test="tenantId != null">
+            AND op.tenant_id = #{tenantId}
+        </if>
+        <!--        商品销售时间,1=最近30天,2=今天.3=最近7天,4本月,5今年-->
+        <if test="productTime != null and productTime == 1">
+            AND date(o.create_time) BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND CURDATE()
+        </if>
+        <if test="productTime != null and productTime == 2">
+            AND date(o.create_time) = CURDATE()
+        </if>
+        <if test="productTime != null and  productTime == 3">
+            AND date(o.create_time) BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND CURDATE()
+        </if>
+        <if test="productTime != null and  productTime == 4">
+            AND date_format(o.create_time,'%Y%m') = date_format(CURDATE(),'%Y%m')
+        </if>
+        <if test="productTime != null and  productTime == 5">
+            AND YEAR(o.create_time) = YEAR(now())
+        </if>
+        GROUP BY op.product_name,op.product_id
+        <!--        商品排序类型,1=total_num正序,2=total_num倒序,3=total_price正序,4=total_price倒序-->
+        <if test="productType != null and productType == 1">
+            ORDER BY total_num asc
+        </if>
+        <if test="productType != null and productType == 2">
+            ORDER BY total_num desc
+        </if>
+        <if test="productType != null and productType == 3">
+            ORDER BY total_price asc
+        </if>
+        <if test="productType != null and productType == 4">
+            ORDER BY total_price desc
+        </if>
+        LIMIT 0,6
+    </select>
+</mapper>

@@ -1,0 +1,84 @@
+server:
+  port: 7004
+  servlet:
+    context-path: /xxl-job-admin
+  #数据源配置
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/jjjshop_single_cloud_git?Unicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: ${MYSQL-USER:root}
+    password: ${MYSQL-PWD:root}
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      auto-commit: true
+      pool-name: HikariCP
+      connection-test-query: SELECT 1
+      # 最小连接数
+      minimum-idle: 10
+      # 最大连接数
+      maximum-pool-size: 20
+      # 一个连接idle状态的最大时长（毫秒），超时则被释放（retired），默认:6分钟
+      idle-timeout: 360000
+      # 一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），默认:7分钟
+      max-lifetime: 420000
+      # 等待连接池分配连接的最大时长（毫秒），超过这个时长还没可用的连接则发生SQLException， 默认:30秒
+      connection-timeout: 30000
+  #邮箱配置
+  mail:
+    #如果是163邮箱,这里是 smtp.163.com
+    host: smtp.qq.com
+    port: 25
+    #发送邮箱
+    username: 1027@qq.com
+    #发送邮箱
+    from: 1027@qq.com
+    #这里是16位授权码（不是qq密码！）,QQ邮箱授权码获取文档https://service.mail.qq.com/detail/0/75
+    password: rnsfcsdrjcbcbcef
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+  #MVC配置
+  mvc:
+    servlet:
+      load-on-startup: 0
+    static-path-pattern: /static/**
+  #freemarker配置
+  freemarker:
+    templateLoaderPath=classpath: /templates/
+    suffix: .ftl
+    charset: UTF-8
+    request-context-attribute: request
+    settings:
+      number_format: 0.##########
+  web:
+    resources:
+      static-locations: classpath:/static/
+#通用配置，开放端点
+management:
+  health:
+    mail:
+      enabled: false
+  server:
+    base-path: /actuator
+#mybatis配置
+mybatis:
+  mapper-locations: classpath:/mybatis-mapper/*Mapper.xml
+#XXL-job配置
+xxl:
+  job:
+    accessToken:
+    i18n: zh_CN
+    #触发池
+    triggerpool:
+      fast:
+        max: 200
+      slow:
+        max: 100
+    logretentiondays: 30
